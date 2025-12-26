@@ -55,7 +55,7 @@ impl CommandSource for TelegramControlPlane {
             }
         };
 
-        teloxide::repl(self.bot, handler).await?;
+        teloxide::repl(self.bot, handler).await;
 
         Ok(())
     }
