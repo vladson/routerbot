@@ -2,7 +2,20 @@
 name = "routerbot"
 version = "0.1.0"
 edition = "2024"
-license = "Apache-2.0 + MIT"
+license = "Apache-2.0 OR MIT"
 authors = ["Vlad Bogomolov"]
 
+[workspace]
+members = [
+    "crates/core",
+    "crates/telegram",
+    "crates/providers/keenetic",
+    "crates/providers/transmission",
+]
+
 [dependencies]
+anyhow = "1"
+routerbot-core = { path = "crates/core" }
+routerbot-telegram = { path = "crates/telegram" }
+async-trait = "0.1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

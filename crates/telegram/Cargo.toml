@@ -1,0 +1,12 @@
+[package]
+name = "routerbot-telegram"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0 OR MIT"
+
+[dependencies]
+teloxide = "0.12"
+async-trait = "0.1"
+routerbot-core = { path = "../core" }
+tokio = { version = "1", features = ["sync"] }
+thiserror = "1"
