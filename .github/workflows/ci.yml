@@ -3,7 +3,11 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -35,7 +39,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: cargo-deny
-        uses: EmbarkStudios/cargo-deny-action@v1
-        with:
-          command: check
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+
+      - name: Check dependencies
+        run: cargo deny check
