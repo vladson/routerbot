@@ -1,7 +1,6 @@
 [advisories]
 db-urls = ["https://github.com/RustSec/advisory-db"]
 ignore = []
-severity-threshold = "medium"
 
 [licenses]
 allow = ["MIT", "Apache-2.0", "BSD-3-Clause", "ISC"]
