@@ -3,7 +3,11 @@ name: ci
 on:
   pull_request:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -35,7 +39,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: cargo-deny
-        uses: EmbarkStudios/cargo-deny-action@v1
+      - name: Run cargo-deny
+        uses: EmbarkStudios/cargo-deny-action@v2
         with:
           command: check
