@@ -1,0 +1,15 @@
+[package]
+name = "routerbot-adapter-kubernetes"
+description = "Kubernetes workload adapter for Routerbot."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+routerbot-app = { path = "../../app" }
+routerbot-core = { path = "../../core" }
+
+[lints]
+workspace = true

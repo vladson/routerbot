@@ -1,0 +1,16 @@
+[package]
+name = "routerbot-adapter-dlna-k8s"
+description = "DLNA media indexing adapter backed by Kubernetes."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+routerbot-app = { path = "../../app" }
+routerbot-core = { path = "../../core" }
+routerbot-adapter-kubernetes = { path = "../kubernetes" }
+
+[lints]
+workspace = true

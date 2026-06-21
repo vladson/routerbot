@@ -1,0 +1,12 @@
+# Example configuration for a Linux home server deployment.
+bot:
+  kind: telegram
+  token_env: ROUTERBOT_TELEGRAM_TOKEN
+  mode: long_polling
+
+auth:
+  allow_chats: []
+  allow_users: []
+
+adapters: {}
+capabilities: {}

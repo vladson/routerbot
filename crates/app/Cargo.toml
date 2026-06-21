@@ -1,0 +1,14 @@
+[package]
+name = "routerbot-app"
+description = "Application orchestration layer for Routerbot."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+routerbot-core = { path = "../core" }
+
+[lints]
+workspace = true

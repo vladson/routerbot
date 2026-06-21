@@ -1,0 +1,32 @@
+[package]
+name = "routerbot"
+description = "Routerbot binary."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+routerbot-app = { path = "../app" }
+routerbot-config = { path = "../config" }
+routerbot-chat-telegram = { path = "../chat/telegram", optional = true }
+routerbot-adapter-transmission = { path = "../adapters/transmission", optional = true }
+routerbot-adapter-keenetic = { path = "../adapters/keenetic", optional = true }
+routerbot-adapter-kubernetes = { path = "../adapters/kubernetes", optional = true }
+routerbot-adapter-dlna-k8s = { path = "../adapters/dlna-k8s", optional = true }
+routerbot-adapter-command = { path = "../adapters/command", optional = true }
+
+[features]
+default = ["telegram", "transmission", "keenetic", "json-state"]
+telegram = ["dep:routerbot-chat-telegram"]
+transmission = ["dep:routerbot-adapter-transmission"]
+keenetic = ["dep:routerbot-adapter-keenetic"]
+kubernetes = ["dep:routerbot-adapter-kubernetes"]
+dlna-k8s = ["kubernetes", "dep:routerbot-adapter-dlna-k8s"]
+command = ["dep:routerbot-adapter-command"]
+json-state = []
+sqlite-state = []
+
+[lints]
+workspace = true

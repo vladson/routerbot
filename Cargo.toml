@@ -1,8 +1,28 @@
-[package]
-name = "routerbot"
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/app",
+    "crates/config",
+    "crates/chat/telegram",
+    "crates/adapters/transmission",
+    "crates/adapters/keenetic",
+    "crates/adapters/kubernetes",
+    "crates/adapters/dlna-k8s",
+    "crates/adapters/command",
+    "crates/bin",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
-license = "Apache-2.0 + MIT"
+license = "MIT OR Apache-2.0"
 authors = ["Vlad Bogomolov"]
+repository = "https://github.com/vladson/routerbot"
 
-[dependencies]
+[workspace.lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
