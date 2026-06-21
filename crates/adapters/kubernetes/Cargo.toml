@@ -8,8 +8,8 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-routerbot-app = { path = "../../app" }
-routerbot-core = { path = "../../core" }
+routerbot-app = { version = "0.1.0", path = "../../app" }
+routerbot-core = { version = "0.1.0", path = "../../core" }
 
 [lints]
 workspace = true

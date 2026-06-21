@@ -8,14 +8,14 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
-routerbot-app = { path = "../app" }
-routerbot-config = { path = "../config" }
-routerbot-chat-telegram = { path = "../chat/telegram", optional = true }
-routerbot-adapter-transmission = { path = "../adapters/transmission", optional = true }
-routerbot-adapter-keenetic = { path = "../adapters/keenetic", optional = true }
-routerbot-adapter-kubernetes = { path = "../adapters/kubernetes", optional = true }
-routerbot-adapter-dlna-k8s = { path = "../adapters/dlna-k8s", optional = true }
-routerbot-adapter-command = { path = "../adapters/command", optional = true }
+routerbot-app = { version = "0.1.0", path = "../app" }
+routerbot-config = { version = "0.1.0", path = "../config" }
+routerbot-chat-telegram = { version = "0.1.0", path = "../chat/telegram", optional = true }
+routerbot-adapter-transmission = { version = "0.1.0", path = "../adapters/transmission", optional = true }
+routerbot-adapter-keenetic = { version = "0.1.0", path = "../adapters/keenetic", optional = true }
+routerbot-adapter-kubernetes = { version = "0.1.0", path = "../adapters/kubernetes", optional = true }
+routerbot-adapter-dlna-k8s = { version = "0.1.0", path = "../adapters/dlna-k8s", optional = true }
+routerbot-adapter-command = { version = "0.1.0", path = "../adapters/command", optional = true }
 
 [features]
 default = ["telegram", "transmission", "keenetic", "json-state"]
