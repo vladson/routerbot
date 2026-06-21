@@ -1,7 +1,7 @@
 //! Authorization domain types.
 
 /// A permission required to execute a normalized bot command.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Permission {
     /// Permission to view command help.
     ViewHelp,
