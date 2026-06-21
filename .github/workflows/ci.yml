@@ -28,10 +28,13 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Test
-        run: cargo test --all --all-features
+        run: cargo test --workspace --all-targets
+
+      - name: Check all features
+        run: cargo check --workspace --all-features
 
   deny:
     runs-on: ubuntu-latest

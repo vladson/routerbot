@@ -5,3 +5,77 @@ version = 4
 [[package]]
 name = "routerbot"
 version = "0.1.0"
+dependencies = [
+ "routerbot-adapter-command",
+ "routerbot-adapter-dlna-k8s",
+ "routerbot-adapter-keenetic",
+ "routerbot-adapter-kubernetes",
+ "routerbot-adapter-transmission",
+ "routerbot-app",
+ "routerbot-chat-telegram",
+ "routerbot-config",
+]
+
+[[package]]
+name = "routerbot-adapter-command"
+version = "0.1.0"
+dependencies = [
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-adapter-dlna-k8s"
+version = "0.1.0"
+dependencies = [
+ "routerbot-adapter-kubernetes",
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-adapter-keenetic"
+version = "0.1.0"
+dependencies = [
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-adapter-kubernetes"
+version = "0.1.0"
+dependencies = [
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-adapter-transmission"
+version = "0.1.0"
+dependencies = [
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-app"
+version = "0.1.0"
+dependencies = [
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-chat-telegram"
+version = "0.1.0"
+dependencies = [
+ "routerbot-app",
+ "routerbot-core",
+]
+
+[[package]]
+name = "routerbot-config"
+version = "0.1.0"
+
+[[package]]
+name = "routerbot-core"
+version = "0.1.0"
