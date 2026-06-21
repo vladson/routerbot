@@ -12,12 +12,9 @@ pub enum WorkloadKind {
 /// A configured workload target.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct WorkloadTarget {
-    /// Workload kind.
-    pub kind: WorkloadKind,
-    /// Optional namespace containing the workload.
-    pub namespace: Option<String>,
-    /// Workload name.
-    pub name: String,
+    kind: WorkloadKind,
+    namespace: Option<String>,
+    name: String,
 }
 
 impl WorkloadTarget {
@@ -29,6 +26,7 @@ impl WorkloadTarget {
     ///
     /// Returns [`DomainError::EmptyValue`] when the workload name is empty or
     /// whitespace-only.
+    #[must_use = "handle the validation result before using the workload target"]
     pub fn new(
         kind: WorkloadKind,
         namespace: Option<String>,
@@ -40,6 +38,24 @@ impl WorkloadTarget {
         }
 
         Ok(Self { kind, namespace, name })
+    }
+
+    /// Returns the workload kind.
+    #[must_use]
+    pub const fn kind(&self) -> WorkloadKind {
+        self.kind
+    }
+
+    /// Returns the namespace containing the workload, when configured.
+    #[must_use]
+    pub fn namespace(&self) -> Option<&str> {
+        self.namespace.as_deref()
+    }
+
+    /// Returns the workload name.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -68,9 +84,9 @@ mod tests {
             WorkloadTarget::new(WorkloadKind::Deployment, Some("media".to_owned()), "minidlna")
                 .expect("workload target should be valid");
 
-        assert_eq!(target.kind, WorkloadKind::Deployment);
-        assert_eq!(target.namespace.as_deref(), Some("media"));
-        assert_eq!(target.name, "minidlna");
+        assert_eq!(target.kind(), WorkloadKind::Deployment);
+        assert_eq!(target.namespace(), Some("media"));
+        assert_eq!(target.name(), "minidlna");
     }
 
     #[test]

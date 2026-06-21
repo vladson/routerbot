@@ -26,6 +26,7 @@ impl DownloadId {
     ///
     /// Returns [`DomainError::EmptyValue`] when the identifier is empty or
     /// whitespace-only.
+    #[must_use = "handle the validation result before using the download id"]
     pub fn new(value: impl Into<String>) -> Result<Self, DomainError> {
         let value = value.into();
         if value.trim().is_empty() {
@@ -64,18 +65,12 @@ pub enum DownloadState {
 /// A normalized download status.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DownloadStatus {
-    /// Stable download identifier.
-    pub id: DownloadId,
-    /// Human-readable download name.
-    pub name: String,
-    /// Current normalized download state.
-    pub state: DownloadState,
-    /// Completion progress from 0 to 100.
-    pub progress_percent: u8,
-    /// Optional download rate in bytes per second.
-    pub download_rate_bytes_per_second: Option<u64>,
-    /// Optional upload rate in bytes per second.
-    pub upload_rate_bytes_per_second: Option<u64>,
+    id: DownloadId,
+    name: String,
+    state: DownloadState,
+    progress_percent: u8,
+    download_rate_bytes_per_second: Option<u64>,
+    upload_rate_bytes_per_second: Option<u64>,
 }
 
 impl DownloadStatus {
@@ -88,6 +83,7 @@ impl DownloadStatus {
     /// Returns [`DomainError::EmptyValue`] when the name is empty or
     /// whitespace-only. Returns [`DomainError::InvalidProgressPercent`] when
     /// `progress_percent` is greater than 100.
+    #[must_use = "handle the validation result before using the download status"]
     pub fn new(
         id: DownloadId,
         name: impl Into<String>,
@@ -112,6 +108,42 @@ impl DownloadStatus {
             download_rate_bytes_per_second,
             upload_rate_bytes_per_second,
         })
+    }
+
+    /// Returns the stable download identifier.
+    #[must_use]
+    pub const fn id(&self) -> &DownloadId {
+        &self.id
+    }
+
+    /// Returns the human-readable download name.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the current normalized download state.
+    #[must_use]
+    pub const fn state(&self) -> DownloadState {
+        self.state
+    }
+
+    /// Returns completion progress from 0 to 100.
+    #[must_use]
+    pub const fn progress_percent(&self) -> u8 {
+        self.progress_percent
+    }
+
+    /// Returns the optional download rate in bytes per second.
+    #[must_use]
+    pub const fn download_rate_bytes_per_second(&self) -> Option<u64> {
+        self.download_rate_bytes_per_second
+    }
+
+    /// Returns the optional upload rate in bytes per second.
+    #[must_use]
+    pub const fn upload_rate_bytes_per_second(&self) -> Option<u64> {
+        self.upload_rate_bytes_per_second
     }
 }
 
@@ -151,8 +183,9 @@ mod tests {
         )
         .expect("complete progress should be valid");
 
-        assert_eq!(zero.progress_percent, 0);
-        assert_eq!(complete.progress_percent, 100);
+        assert_eq!(zero.progress_percent(), 0);
+        assert_eq!(complete.progress_percent(), 100);
+        assert_eq!(complete.upload_rate_bytes_per_second(), Some(1024));
     }
 
     #[test]
