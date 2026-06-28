@@ -80,6 +80,7 @@ name = "routerbot-app"
 version = "0.1.0"
 dependencies = [
  "routerbot-core",
+ "thiserror",
 ]
 
 [[package]]
