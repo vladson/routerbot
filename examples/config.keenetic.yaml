@@ -8,5 +8,15 @@ auth:
   allow_chats: []
   allow_users: []
 
-adapters: {}
-capabilities: {}
+adapters:
+  transmission-main:
+    kind: transmission.rpc
+    endpoint: http://127.0.0.1:9091/transmission/rpc
+    username_env: TRANSMISSION_USERNAME
+    password_env: TRANSMISSION_PASSWORD
+  keenetic-dlna:
+    kind: keenetic.dlna
+
+capabilities:
+  downloads: transmission-main
+  media_index: keenetic-dlna

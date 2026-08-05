@@ -7,5 +7,10 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_yaml = "=0.9.34"
+thiserror = "=2.0.18"
+
 [lints]
 workspace = true
