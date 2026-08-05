@@ -23,4 +23,13 @@ media indexing to the router-local DLNA service. Adapter implementations determi
 the exact runtime operations; configuration never accepts arbitrary chat-provided
 commands.
 
+The initial Transmission adapter targets the legacy protocol used by Transmission
+3.00 / RPC 16 on Keenetic. It supports magnet and torrent URL additions, download
+status listing, stopping torrents, and removing torrents by their stable hash.
+Removal explicitly distinguishes preserving local data from deleting it; data
+deletion is a dangerous action that requires confirmation at the chat boundary.
+HTTP Basic credentials are installed as a sensitive HTTP header and are never stored
+in the underlying RPC client's loggable authentication type. JSON-RPC 2.0 support for
+Transmission 4.1 and later is a future compatibility stage.
+
 Example configuration files live under `examples/`.

@@ -17,6 +17,13 @@ pub enum CommandResponse {
     TorrentAdded(DownloadId),
     /// A download was stopped.
     DownloadStopped(DownloadId),
+    /// A download was removed.
+    DownloadRemoved {
+        /// Removed download identifier.
+        id: DownloadId,
+        /// Whether local downloaded data was deleted.
+        data_deleted: bool,
+    },
     /// Media indexing result.
     MediaRescan(MediaRescanResult),
     /// Device reboot was started.
@@ -62,6 +69,10 @@ impl CommandService {
             BotCommand::StopDownload { id } => {
                 self.registry.downloads()?.stop(id.clone()).await?;
                 Ok(CommandResponse::DownloadStopped(id))
+            }
+            BotCommand::RemoveDownload { id, delete_data } => {
+                self.registry.downloads()?.remove(id.clone(), delete_data).await?;
+                Ok(CommandResponse::DownloadRemoved { id, data_deleted: delete_data })
             }
             BotCommand::RescanMedia => {
                 let result = self.registry.media_index()?.rescan().await?;
@@ -128,6 +139,7 @@ mod tests {
     #[derive(Default)]
     struct MockDownloads {
         stop_called: Arc<AtomicBool>,
+        remove_called: Arc<AtomicBool>,
     }
 
     impl DownloadControl for MockDownloads {
@@ -143,6 +155,18 @@ mod tests {
             let stop_called = Arc::clone(&self.stop_called);
             Box::pin(async move {
                 stop_called.store(true, Ordering::SeqCst);
+                Ok(())
+            })
+        }
+
+        fn remove(
+            &self,
+            _id: DownloadId,
+            _delete_data: bool,
+        ) -> BoxFuture<'_, Result<(), AppError>> {
+            let remove_called = Arc::clone(&self.remove_called);
+            Box::pin(async move {
+                remove_called.store(true, Ordering::SeqCst);
                 Ok(())
             })
         }
@@ -200,6 +224,7 @@ mod tests {
                 Permission::ListDownloads,
                 Permission::AddTorrent,
                 Permission::StopDownload,
+                Permission::RemoveDownload,
                 Permission::RescanMedia,
                 Permission::RebootDevice,
             ]),
@@ -288,6 +313,27 @@ mod tests {
 
         assert_eq!(response, CommandResponse::DownloadStopped(sample_download_id()));
         assert!(stop_called.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn command_service_routes_remove_download_with_data_deletion() {
+        let downloads = MockDownloads::default();
+        let remove_called = Arc::clone(&downloads.remove_called);
+        let service =
+            service_with_all_permissions(CapabilityRegistry::new().with_downloads(downloads));
+
+        let response =
+            block_on(service.execute(BotCommand::RemoveDownload {
+                id: sample_download_id(),
+                delete_data: true,
+            }))
+            .expect("remove download should succeed");
+
+        assert_eq!(
+            response,
+            CommandResponse::DownloadRemoved { id: sample_download_id(), data_deleted: true }
+        );
+        assert!(remove_called.load(Ordering::SeqCst));
     }
 
     #[test]
