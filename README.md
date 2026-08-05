@@ -8,11 +8,11 @@ permission-controlled command router rather than a generic remote shell.
 
 ## Status
 
-This repository is at Stage 1: project structure and CI.
+This repository is at Stage 4: typed configuration boundary.
 
-The current code intentionally contains no business logic. The workspace only defines
-compileable crates, documentation placeholders, examples, scripts, and checks so future
-stages can add behavior in small reviewable steps.
+The core domain, application orchestration layer, and configuration model are being
+added in small reviewable stages. Runtime integrations are still intentionally
+behind adapter crates and are not wired into the binary yet.
 
 ## Workspace
 
