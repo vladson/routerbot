@@ -21,6 +21,9 @@ pub trait DownloadControl: Send + Sync {
 
     /// Stops a download.
     fn stop(&self, id: DownloadId) -> BoxFuture<'_, Result<(), AppError>>;
+
+    /// Removes a download and optionally deletes its local data.
+    fn remove(&self, id: DownloadId, delete_data: bool) -> BoxFuture<'_, Result<(), AppError>>;
 }
 
 /// Device management capability.

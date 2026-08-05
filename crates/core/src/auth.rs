@@ -13,6 +13,8 @@ pub enum Permission {
     AddTorrent,
     /// Permission to stop a download.
     StopDownload,
+    /// Permission to remove a download, optionally including local data.
+    RemoveDownload,
     /// Permission to trigger media indexing.
     RescanMedia,
     /// Permission to reboot the configured device.

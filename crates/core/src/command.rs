@@ -21,6 +21,13 @@ pub enum BotCommand {
         /// The download to stop.
         id: DownloadId,
     },
+    /// Remove a download from the client.
+    RemoveDownload {
+        /// The download to remove.
+        id: DownloadId,
+        /// Whether downloaded local data must also be deleted.
+        delete_data: bool,
+    },
     /// Trigger media indexing.
     RescanMedia,
     /// Reboot the configured device.
@@ -37,6 +44,7 @@ impl BotCommand {
             Self::ListDownloads => Permission::ListDownloads,
             Self::AddTorrent { .. } => Permission::AddTorrent,
             Self::StopDownload { .. } => Permission::StopDownload,
+            Self::RemoveDownload { .. } => Permission::RemoveDownload,
             Self::RescanMedia => Permission::RescanMedia,
             Self::RebootDevice => Permission::RebootDevice,
         }
@@ -47,10 +55,13 @@ impl BotCommand {
     pub const fn action_risk(&self) -> ActionRisk {
         match self {
             Self::Help | Self::ShowStatus | Self::ListDownloads => ActionRisk::ReadOnly,
-            Self::AddTorrent { .. } | Self::StopDownload { .. } | Self::RescanMedia => {
-                ActionRisk::Mutating
+            Self::AddTorrent { .. }
+            | Self::StopDownload { .. }
+            | Self::RemoveDownload { delete_data: false, .. }
+            | Self::RescanMedia => ActionRisk::Mutating,
+            Self::RemoveDownload { delete_data: true, .. } | Self::RebootDevice => {
+                ActionRisk::Dangerous
             }
-            Self::RebootDevice => ActionRisk::Dangerous,
         }
     }
 }
@@ -75,6 +86,10 @@ mod tests {
             (BotCommand::ListDownloads, Permission::ListDownloads),
             (BotCommand::AddTorrent { source: sample_torrent_source() }, Permission::AddTorrent),
             (BotCommand::StopDownload { id: sample_download_id() }, Permission::StopDownload),
+            (
+                BotCommand::RemoveDownload { id: sample_download_id(), delete_data: false },
+                Permission::RemoveDownload,
+            ),
             (BotCommand::RescanMedia, Permission::RescanMedia),
             (BotCommand::RebootDevice, Permission::RebootDevice),
         ];
@@ -92,6 +107,14 @@ mod tests {
             (BotCommand::ListDownloads, ActionRisk::ReadOnly),
             (BotCommand::AddTorrent { source: sample_torrent_source() }, ActionRisk::Mutating),
             (BotCommand::StopDownload { id: sample_download_id() }, ActionRisk::Mutating),
+            (
+                BotCommand::RemoveDownload { id: sample_download_id(), delete_data: false },
+                ActionRisk::Mutating,
+            ),
+            (
+                BotCommand::RemoveDownload { id: sample_download_id(), delete_data: true },
+                ActionRisk::Dangerous,
+            ),
             (BotCommand::RescanMedia, ActionRisk::Mutating),
             (BotCommand::RebootDevice, ActionRisk::Dangerous),
         ];
