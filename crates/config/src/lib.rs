@@ -6,7 +6,7 @@
 use std::{
     collections::{BTreeMap, HashSet},
     fmt, fs,
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
 };
 
@@ -46,7 +46,9 @@ impl RouterbotConfig {
     /// [`ConfigError::Parse`] when the YAML cannot be deserialized, or
     /// [`ConfigError::Validation`] when validation fails.
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self, ConfigError> {
-        let input = fs::read_to_string(path).map_err(ConfigError::Read)?;
+        let path = path.as_ref();
+        let input = fs::read_to_string(path)
+            .map_err(|source| ConfigError::Read { path: path.to_owned(), source })?;
         Self::from_str(&input)
     }
 
@@ -112,7 +114,7 @@ impl FromStr for RouterbotConfig {
     type Err = ConfigError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let config = serde_yaml::from_str::<Self>(input).map_err(ConfigError::Parse)?;
+        let config = serde_saphyr::from_str::<Self>(input).map_err(ConfigError::Parse)?;
         config.validate()?;
         Ok(config)
     }
@@ -394,9 +396,11 @@ impl CapabilityBindings {
         validate_binding(adapters, "capabilities.downloads", self.downloads(), |adapter| {
             matches!(adapter, AdapterConfig::TransmissionRpc { .. })
         })?;
+        validate_binding(adapters, "capabilities.device", self.device(), |_| false)?;
         validate_binding(adapters, "capabilities.media_index", self.media_index(), |adapter| {
             matches!(adapter, AdapterConfig::KeeneticDlna)
-        })
+        })?;
+        validate_binding(adapters, "capabilities.workload", self.workload(), |_| false)
     }
 }
 
@@ -404,11 +408,17 @@ impl CapabilityBindings {
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
     /// A configuration file could not be read.
-    #[error("failed to read configuration: {0}")]
-    Read(std::io::Error),
+    #[error("failed to read configuration at {path}: {source}")]
+    Read {
+        /// Path that could not be read.
+        path: PathBuf,
+        /// Underlying filesystem error.
+        #[source]
+        source: std::io::Error,
+    },
     /// Configuration YAML could not be parsed.
     #[error("failed to parse configuration: {0}")]
-    Parse(serde_yaml::Error),
+    Parse(serde_saphyr::Error),
     /// Configuration was parsed but failed validation.
     #[error("invalid configuration: {message}")]
     Validation {
@@ -648,6 +658,37 @@ capabilities:
     }
 
     #[test]
+    fn unknown_device_adapter_fails() {
+        let input = VALID_CONFIG.replace(
+            "  media_index: keenetic-dlna",
+            "  device: missing\n  media_index: keenetic-dlna",
+        );
+
+        let message = validation_message(
+            RouterbotConfig::from_str(&input).expect_err("config should be invalid"),
+        );
+
+        assert_eq!(message, "capabilities.device references unknown adapter missing");
+    }
+
+    #[test]
+    fn incompatible_workload_adapter_fails() {
+        let input = VALID_CONFIG.replace(
+            "  media_index: keenetic-dlna",
+            "  media_index: keenetic-dlna\n  workload: transmission-main",
+        );
+
+        let message = validation_message(
+            RouterbotConfig::from_str(&input).expect_err("config should be invalid"),
+        );
+
+        assert_eq!(
+            message,
+            "capabilities.workload references incompatible adapter transmission-main"
+        );
+    }
+
+    #[test]
     fn secrets_are_resolved_and_redacted() {
         let config = RouterbotConfig::from_str(VALID_CONFIG).expect("config should be valid");
         let secrets = config
@@ -684,6 +725,19 @@ capabilities:
     #[test]
     fn malformed_yaml_fails() {
         assert!(matches!(RouterbotConfig::from_str("bot: ["), Err(ConfigError::Parse(_))));
+    }
+
+    #[test]
+    fn read_error_includes_path() {
+        let path = Path::new("definitely-missing/routerbot.yaml");
+
+        let error = RouterbotConfig::from_path(path).expect_err("file should not exist");
+
+        assert!(matches!(
+            &error,
+            ConfigError::Read { path: error_path, .. } if error_path == path
+        ));
+        assert!(error.to_string().contains("definitely-missing/routerbot.yaml"));
     }
 
     #[test]
