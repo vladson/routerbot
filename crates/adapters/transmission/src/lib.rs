@@ -194,8 +194,7 @@ fn torrent_download_id(torrent: &Torrent) -> Result<DownloadId, AppError> {
         .hash_string
         .as_deref()
         .map(str::to_owned)
-        .or_else(|| torrent.id.map(|id| id.to_string()))
-        .ok_or_else(|| capability_error("Transmission response omitted the torrent identifier"))?;
+        .ok_or_else(|| capability_error("Transmission response omitted hashString"))?;
     DownloadId::new(value).map_err(capability_error)
 }
 
@@ -297,6 +296,29 @@ mod tests {
         assert!(requests[0].contains("authorization: basic "));
         assert!(!requests[0].contains("top-secret"));
         assert!(requests[1].contains("x-transmission-session-id: test-session"));
+    }
+
+    #[tokio::test]
+    async fn add_rejects_numeric_id_without_stable_hash() {
+        let (endpoint, server) = rpc_server(
+            r#"{"arguments":{"torrent-added":{"id":7,"name":"Router image"}},"result":"success"}"#,
+        );
+        let adapter =
+            TransmissionRpcAdapter::new(&endpoint, None).expect("adapter should be constructed");
+
+        let error = adapter
+            .add(TorrentSource::Magnet("magnet:?xt=urn:btih:test".to_owned()))
+            .await
+            .expect_err("numeric id must not replace a stable hash");
+        server.join().expect("mock server should finish");
+
+        assert_eq!(
+            error,
+            AppError::CapabilityFailed {
+                capability: Capability::Downloads,
+                message: "Transmission response omitted hashString".to_owned(),
+            }
+        );
     }
 
     #[tokio::test]
