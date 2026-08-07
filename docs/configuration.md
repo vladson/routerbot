@@ -10,7 +10,9 @@ The current configuration boundary validates the top-level deployment shape:
 - `bot.kind` must be `telegram`.
 - `bot.mode` must be `long_polling`.
 - `bot.token_env` must name an environment variable and must not contain a token value.
-- `auth.allow_chats` and `auth.allow_users` are allow lists of Telegram identifiers.
+- `auth.allow_chats` contains signed Telegram chat identifiers and
+  `auth.allow_users` contains unsigned Telegram user identifiers. A caller is
+  allowed when either identifier matches; negative user identifiers are invalid.
 - `adapters` contains typed, named adapter instances. The Keenetic milestone supports
   `transmission.rpc` and `keenetic.dlna`.
 - `capabilities.downloads` must reference a `transmission.rpc` adapter.
@@ -33,3 +35,23 @@ in the underlying RPC client's loggable authentication type. JSON-RPC 2.0 suppor
 Transmission 4.1 and later is a future compatibility stage.
 
 Example configuration files live under `examples/`.
+
+## Telegram Commands
+
+The Telegram adapter supports:
+
+```text
+/start
+/help
+/status
+/downloads
+/add <magnet-or-http(s)-url>
+/stop <download-id>
+/remove <download-id> [--delete-data]
+/rescan
+/reboot
+```
+
+`/reboot` and `/remove <download-id> --delete-data` require confirmation through
+inline buttons. The initial adapter uses explicit download identifiers; interactive
+download selection and torrent file uploads are not yet supported.

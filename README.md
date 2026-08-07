@@ -8,11 +8,13 @@ permission-controlled command router rather than a generic remote shell.
 
 ## Status
 
-This repository is at Stage 4: typed configuration boundary.
+This repository has completed Stages 1 through 6, including the Telegram chat
+adapter and Transmission RPC adapter.
 
-The core domain, application orchestration layer, and configuration model are being
-added in small reviewable stages. Runtime integrations are still intentionally
-behind adapter crates and are not wired into the binary yet.
+The Telegram adapter provides command parsing, allow-list enforcement, dangerous
+action confirmation, response formatting, and a reusable long-polling dispatcher.
+Runtime integrations remain intentionally behind adapter crates and are not wired
+into the binary yet.
 
 ## Workspace
 
