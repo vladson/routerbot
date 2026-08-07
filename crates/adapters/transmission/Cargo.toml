@@ -9,11 +9,11 @@ repository.workspace = true
 
 [dependencies]
 base64 = "=0.22.1"
-reqwest = { version = "=0.12.28", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "=0.12.28", default-features = false, features = ["native-tls"] }
 routerbot-app = { version = "0.1.0", path = "../../app" }
 routerbot-core = { version = "0.1.0", path = "../../core" }
 thiserror = "=2.0.18"
-transmission-rpc = { version = "=0.5.0", features = ["sync"] }
+transmission-rpc = { version = "=0.5.0", default-features = false, features = ["native-tls", "sync"] }
 
 [dev-dependencies]
 tokio = { version = "=1.53.1", features = ["macros", "rt-multi-thread"] }

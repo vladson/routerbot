@@ -11,7 +11,7 @@ repository.workspace = true
 log = "=0.4.33"
 routerbot-app = { version = "0.1.0", path = "../../app" }
 routerbot-core = { version = "0.1.0", path = "../../core" }
-teloxide = { version = "=0.17.0", default-features = false, features = ["macros", "rustls"] }
+teloxide = { version = "=0.17.0", default-features = false, features = ["macros", "native-tls"] }
 url = "=2.5.8"
 
 [dev-dependencies]

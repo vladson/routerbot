@@ -70,6 +70,12 @@ impl CapabilityRegistry {
         self.device.clone().ok_or(AppError::MissingCapability { capability: Capability::Device })
     }
 
+    /// Returns device management when it is configured.
+    #[must_use]
+    pub fn optional_device(&self) -> Option<Arc<dyn DeviceControl>> {
+        self.device.clone()
+    }
+
     /// Returns the media indexing capability.
     ///
     /// # Errors

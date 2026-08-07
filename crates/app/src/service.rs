@@ -1,5 +1,7 @@
 //! Command execution service.
 
+use std::time::Duration;
+
 use routerbot_core::{BotCommand, DownloadId, DownloadStatus, MediaRescanResult};
 
 use crate::{AppError, AuthzService, CapabilityRegistry};
@@ -10,7 +12,10 @@ pub enum CommandResponse {
     /// Help was requested.
     Help,
     /// High-level status was requested.
-    Status,
+    Status {
+        /// Uptime reported by the configured device, when available.
+        device_uptime: Option<Duration>,
+    },
     /// Current downloads.
     Downloads(Vec<DownloadStatus>),
     /// A torrent was added.
@@ -70,7 +75,13 @@ impl CommandService {
 
         match command {
             BotCommand::Help => Ok(CommandResponse::Help),
-            BotCommand::ShowStatus => Ok(CommandResponse::Status),
+            BotCommand::ShowStatus => {
+                let device_uptime = match self.registry.optional_device() {
+                    Some(device) => device.uptime().await?,
+                    None => None,
+                };
+                Ok(CommandResponse::Status { device_uptime })
+            }
             BotCommand::ListDownloads => {
                 let downloads = self.registry.downloads()?.list().await?;
                 Ok(CommandResponse::Downloads(downloads))
@@ -193,7 +204,7 @@ mod tests {
         }
 
         fn uptime(&self) -> BoxFuture<'_, Result<Option<std::time::Duration>, AppError>> {
-            Box::pin(async { Ok(None) })
+            Box::pin(async { Ok(Some(Duration::from_secs(62_055))) })
         }
     }
 
@@ -297,6 +308,24 @@ mod tests {
             }
             other => panic!("unexpected response: {other:?}"),
         }
+    }
+
+    #[test]
+    fn command_service_reports_device_uptime() {
+        let service =
+            service_with_all_permissions(CapabilityRegistry::new().with_device(MockDevice));
+        let response = block_on(service.execute(BotCommand::ShowStatus)).unwrap();
+        assert_eq!(
+            response,
+            CommandResponse::Status { device_uptime: Some(Duration::from_secs(62_055)) }
+        );
+    }
+
+    #[test]
+    fn command_service_reports_status_without_device() {
+        let service = service_with_all_permissions(CapabilityRegistry::new());
+        let response = block_on(service.execute(BotCommand::ShowStatus)).unwrap();
+        assert_eq!(response, CommandResponse::Status { device_uptime: None });
     }
 
     #[test]

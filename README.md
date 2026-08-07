@@ -8,13 +8,14 @@ permission-controlled command router rather than a generic remote shell.
 
 ## Status
 
-This repository has completed Stages 1 through 6, including the Telegram chat
-adapter and Transmission RPC adapter.
+This repository has completed Stages 1 through 7, including the Telegram chat
+adapter, Transmission RPC adapter, local Keenetic device control, and an Entware
+OPKG deployment path.
 
 The Telegram adapter provides command parsing, allow-list enforcement, dangerous
 action confirmation, response formatting, and a reusable long-polling dispatcher.
-Runtime integrations remain intentionally behind adapter crates and are not wired
-into the binary yet.
+The default binary wires Telegram long polling to configured Transmission and
+Keenetic capabilities.
 
 ## Workspace
 

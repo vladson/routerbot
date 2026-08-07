@@ -13,15 +13,17 @@ The current configuration boundary validates the top-level deployment shape:
 - `auth.allow_chats` contains signed Telegram chat identifiers and
   `auth.allow_users` contains unsigned Telegram user identifiers. A caller is
   allowed when either identifier matches; negative user identifiers are invalid.
-- `adapters` contains typed, named adapter instances. The Keenetic milestone supports
-  `transmission.rpc` and `keenetic.dlna`.
+- `adapters` contains typed, named adapter instances. The Keenetic runtime supports
+  `transmission.rpc` and `keenetic.local`. The latter accepts an absolute `ndmc_path`
+  and defaults to `/bin/ndmc`.
 - `capabilities.downloads` must reference a `transmission.rpc` adapter.
+- `capabilities.device` must reference a `keenetic.local` adapter.
 - `capabilities.media_index` must reference a `keenetic.dlna` adapter.
 - Environment-variable references are validated at parse time and resolved separately
   at runtime. Resolved values use redacted debug output.
 
 The Keenetic example connects to Transmission over its local RPC endpoint and binds
-media indexing to the router-local DLNA service. Adapter implementations determine
+device control to the router-local Keenetic CLI. Adapter implementations determine
 the exact runtime operations; configuration never accepts arbitrary chat-provided
 commands.
 
@@ -35,6 +37,12 @@ in the underlying RPC client's loggable authentication type. JSON-RPC 2.0 suppor
 Transmission 4.1 and later is a future compatibility stage.
 
 Example configuration files live under `examples/`.
+
+The executable accepts `--config PATH`; otherwise it reads `ROUTERBOT_CONFIG` and
+then falls back to `/opt/etc/routerbot/config.yaml`. Use `--check-config` to load the
+file, resolve referenced secrets, and construct enabled adapters without contacting
+Telegram. Transmission `username_env` and `password_env` must either both be set or
+both be omitted.
 
 ## Telegram Commands
 
