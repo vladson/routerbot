@@ -10,7 +10,7 @@ repository.workspace = true
 [dependencies]
 serde = { version = "=1.0.228", features = ["derive"] }
 serde-saphyr = { version = "=0.0.29", default-features = false, features = ["deserialize"] }
-thiserror = "=2.0.18"
+thiserror = "=2.0.19"
 
 [lints]
 workspace = true
