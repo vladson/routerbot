@@ -6,6 +6,7 @@
 use std::{
     collections::{BTreeMap, HashSet},
     fmt, fs,
+    hash::Hash,
     path::{Path, PathBuf},
     str::FromStr,
 };
@@ -185,7 +186,7 @@ pub struct AuthConfig {
     #[serde(default)]
     allow_chats: Vec<i64>,
     #[serde(default)]
-    allow_users: Vec<i64>,
+    allow_users: Vec<u64>,
 }
 
 impl AuthConfig {
@@ -197,7 +198,7 @@ impl AuthConfig {
 
     /// Returns allowed Telegram user identifiers.
     #[must_use]
-    pub fn allow_users(&self) -> &[i64] {
+    pub fn allow_users(&self) -> &[u64] {
         &self.allow_users
     }
 
@@ -455,7 +456,10 @@ fn resolve_optional_secret(
     name.map(|name| resolve_required_secret(resolve, name)).transpose()
 }
 
-fn reject_duplicates(field: &str, values: &[i64]) -> Result<(), ConfigError> {
+fn reject_duplicates<T: fmt::Display + Eq + Hash>(
+    field: &str,
+    values: &[T],
+) -> Result<(), ConfigError> {
     let mut seen = HashSet::with_capacity(values.len());
     for value in values {
         if !seen.insert(value) {
@@ -621,6 +625,13 @@ capabilities:
         );
 
         assert_eq!(message, "auth.allow_users contains duplicate value 2001");
+    }
+
+    #[test]
+    fn negative_user_ids_fail() {
+        let input = VALID_CONFIG.replace("allow_users: [2001]", "allow_users: [-1]");
+
+        assert!(matches!(RouterbotConfig::from_str(&input), Err(ConfigError::Parse(_))));
     }
 
     #[test]

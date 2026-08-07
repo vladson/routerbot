@@ -8,8 +8,14 @@ authors.workspace = true
 repository.workspace = true
 
 [dependencies]
+log = "=0.4.33"
 routerbot-app = { version = "0.1.0", path = "../../app" }
 routerbot-core = { version = "0.1.0", path = "../../core" }
+teloxide = { version = "=0.17.0", default-features = false, features = ["macros", "rustls"] }
+url = "=2.5.8"
+
+[dev-dependencies]
+tokio = { version = "=1.53.1", features = ["macros", "rt-multi-thread"] }
 
 [lints]
 workspace = true

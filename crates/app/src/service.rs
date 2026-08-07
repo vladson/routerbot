@@ -44,6 +44,19 @@ impl CommandService {
         Self { registry, authz }
     }
 
+    /// Checks whether a normalized command is authorized without executing it.
+    ///
+    /// This is useful at interaction boundaries that must obtain confirmation
+    /// before executing dangerous commands. Execution always performs the same
+    /// authorization check again.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`AppError::Unauthorized`] when authorization denies the command.
+    pub fn authorize(&self, command: &BotCommand) -> Result<(), AppError> {
+        self.authz.authorize(command)
+    }
+
     /// Executes a normalized command.
     ///
     /// # Errors
@@ -53,7 +66,7 @@ impl CommandService {
     /// configured. Returns [`AppError::CapabilityFailed`] when a configured
     /// capability reports a failure.
     pub async fn execute(&self, command: BotCommand) -> Result<CommandResponse, AppError> {
-        self.authz.authorize(&command)?;
+        self.authorize(&command)?;
 
         match command {
             BotCommand::Help => Ok(CommandResponse::Help),

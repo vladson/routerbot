@@ -18,3 +18,10 @@ types, or adapter-specific request structures.
 The application layer uses each command's required permission and action risk to
 perform authorization and confirmation before routing the command to a capability.
 Capabilities are implemented by adapters outside the core crate.
+
+Telegram chat and user allow lists are enforced at the Telegram boundary so that
+Telegram-specific identity types do not enter the core domain. The application
+layer still authorizes every normalized command before execution. For dangerous
+commands, the Telegram adapter performs an authorization preflight, obtains a
+single-use confirmation, and relies on `CommandService` to authorize again while
+executing the confirmed command.
