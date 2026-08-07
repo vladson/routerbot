@@ -14,9 +14,10 @@ adapters:
     endpoint: http://127.0.0.1:9091/transmission/rpc
     username_env: TRANSMISSION_USERNAME
     password_env: TRANSMISSION_PASSWORD
-  keenetic-dlna:
-    kind: keenetic.dlna
+  keenetic-router:
+    kind: keenetic.local
+    ndmc_path: /bin/ndmc
 
 capabilities:
   downloads: transmission-main
-  media_index: keenetic-dlna
+  device: keenetic-router

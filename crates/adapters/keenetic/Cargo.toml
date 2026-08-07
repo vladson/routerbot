@@ -9,7 +9,11 @@ repository.workspace = true
 
 [dependencies]
 routerbot-app = { version = "0.1.0", path = "../../app" }
-routerbot-core = { version = "0.1.0", path = "../../core" }
+tokio = { version = "=1.53.1", features = ["process", "time"] }
+
+[dev-dependencies]
+tempfile = "=3.27.0"
+tokio = { version = "=1.53.1", features = ["macros", "rt-multi-thread"] }
 
 [lints]
 workspace = true

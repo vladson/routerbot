@@ -1,0 +1,17 @@
+#!/bin/sh
+
+ENABLED=yes
+PROCS=routerbot
+ARGS="--config /opt/etc/routerbot/config.yaml"
+PREARGS=""
+DESC=routerbot
+PATH=/opt/sbin:/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+if [ -r /opt/etc/routerbot/routerbot.env ]; then
+    . /opt/etc/routerbot/routerbot.env
+fi
+
+export SSL_CERT_FILE="${SSL_CERT_FILE:-/opt/etc/ssl/certs/ca-certificates.crt}"
+export RUST_LOG="${RUST_LOG:-info}"
+
+. /opt/etc/init.d/rc.func

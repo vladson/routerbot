@@ -1,0 +1,21 @@
+# Routerbot configuration for a Keenetic/Entware installation.
+bot:
+  kind: telegram
+  token_env: ROUTERBOT_TELEGRAM_TOKEN
+  mode: long_polling
+
+auth:
+  allow_chats: []
+  allow_users: []
+
+adapters:
+  transmission-main:
+    kind: transmission.rpc
+    endpoint: http://127.0.0.1:9091/transmission/rpc
+  keenetic-router:
+    kind: keenetic.local
+    ndmc_path: /bin/ndmc
+
+capabilities:
+  downloads: transmission-main
+  device: keenetic-router

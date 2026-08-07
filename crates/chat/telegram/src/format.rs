@@ -23,7 +23,10 @@ pub(crate) const HELP_TEXT: &str = "Routerbot commands:\n\
 pub fn format_command_response(response: &CommandResponse) -> String {
     let text = match response {
         CommandResponse::Help => HELP_TEXT.to_owned(),
-        CommandResponse::Status => "Routerbot is running.".to_owned(),
+        CommandResponse::Status { device_uptime } => device_uptime.map_or_else(
+            || "Routerbot is running.".to_owned(),
+            |uptime| format!("Routerbot is running.\nDevice uptime: {}.", format_duration(uptime)),
+        ),
         CommandResponse::Downloads(downloads) => format_downloads(downloads),
         CommandResponse::TorrentAdded(id) => format!("Torrent added: {}", id.as_str()),
         CommandResponse::DownloadStopped(id) => format!("Download stopped: {}", id.as_str()),
@@ -45,6 +48,20 @@ pub fn format_command_response(response: &CommandResponse) -> String {
         CommandResponse::DeviceRebootStarted => "Device reboot started.".to_owned(),
     };
     truncate_utf16(text, TELEGRAM_MESSAGE_LIMIT)
+}
+
+fn format_duration(duration: std::time::Duration) -> String {
+    let seconds = duration.as_secs();
+    let days = seconds / 86_400;
+    let hours = seconds % 86_400 / 3_600;
+    let minutes = seconds % 3_600 / 60;
+    if days > 0 {
+        format!("{days}d {hours}h {minutes}m")
+    } else if hours > 0 {
+        format!("{hours}h {minutes}m")
+    } else {
+        format!("{minutes}m")
+    }
 }
 
 pub(crate) fn format_app_error(error: &AppError) -> &'static str {
@@ -204,6 +221,16 @@ mod tests {
                 "busy"
             ))),
             "Media rescan skipped. busy"
+        );
+    }
+
+    #[test]
+    fn formats_device_uptime() {
+        let response =
+            CommandResponse::Status { device_uptime: Some(std::time::Duration::from_secs(62_055)) };
+        assert_eq!(
+            format_command_response(&response),
+            "Routerbot is running.\nDevice uptime: 17h 14m."
         );
     }
 

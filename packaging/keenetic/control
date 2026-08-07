@@ -1,0 +1,8 @@
+Package: routerbot
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Vlad Bogomolov
+Section: utils
+Priority: optional
+Depends: ca-bundle
+Description: Local-first Telegram operations bot for Keenetic routers

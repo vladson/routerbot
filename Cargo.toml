@@ -20,6 +20,16 @@ license = "MIT OR Apache-2.0"
 authors = ["Vlad Bogomolov"]
 repository = "https://github.com/vladson/routerbot"
 
+[patch.crates-io]
+transmission-rpc = { path = "vendor/transmission-rpc" }
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+opt-level = "s"
+panic = "abort"
+strip = "symbols"
+
 [workspace.lints.rust]
 missing_docs = "warn"
 unsafe_code = "forbid"

@@ -1,0 +1,2 @@
+[target.mipsel-unknown-linux-musl]
+image = "ghcr.io/cross-rs/mipsel-unknown-linux-musl@sha256:aaded52ba6e4b55ca63ec9776bb6b18f2118395c67554954c582bdb010a1de1c"

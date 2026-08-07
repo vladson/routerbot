@@ -255,6 +255,13 @@ pub enum AdapterConfig {
     /// DLNA service running locally on the Keenetic router.
     #[serde(rename = "keenetic.dlna")]
     KeeneticDlna,
+    /// Router-local Keenetic CLI.
+    #[serde(rename = "keenetic.local")]
+    KeeneticLocal {
+        /// Absolute path to the `ndmc` executable.
+        #[serde(default = "default_ndmc_path")]
+        ndmc_path: PathBuf,
+    },
 }
 
 /// Secret values resolved for runtime adapter construction.
@@ -342,9 +349,23 @@ impl AdapterConfig {
                 validate_optional_environment_name(
                     &format!("adapters.{name}.password_env"),
                     password_env.as_deref(),
-                )
+                )?;
+                if username_env.is_some() != password_env.is_some() {
+                    return Err(ConfigError::validation(format!(
+                        "adapters.{name} must configure username_env and password_env together"
+                    )));
+                }
+                Ok(())
             }
             Self::KeeneticDlna => Ok(()),
+            Self::KeeneticLocal { ndmc_path } => {
+                if !ndmc_path.is_absolute() {
+                    return Err(ConfigError::validation(format!(
+                        "adapters.{name}.ndmc_path must be absolute"
+                    )));
+                }
+                Ok(())
+            }
         }
     }
 }
@@ -397,12 +418,18 @@ impl CapabilityBindings {
         validate_binding(adapters, "capabilities.downloads", self.downloads(), |adapter| {
             matches!(adapter, AdapterConfig::TransmissionRpc { .. })
         })?;
-        validate_binding(adapters, "capabilities.device", self.device(), |_| false)?;
+        validate_binding(adapters, "capabilities.device", self.device(), |adapter| {
+            matches!(adapter, AdapterConfig::KeeneticLocal { .. })
+        })?;
         validate_binding(adapters, "capabilities.media_index", self.media_index(), |adapter| {
             matches!(adapter, AdapterConfig::KeeneticDlna)
         })?;
         validate_binding(adapters, "capabilities.workload", self.workload(), |_| false)
     }
+}
+
+fn default_ndmc_path() -> PathBuf {
+    PathBuf::from("/bin/ndmc")
 }
 
 /// Configuration loading or validation error.
@@ -666,6 +693,48 @@ capabilities:
         );
 
         assert_eq!(message, "capabilities.downloads references incompatible adapter keenetic-dlna");
+    }
+
+    #[test]
+    fn local_keenetic_defaults_ndmc_path() {
+        let input = VALID_CONFIG
+            .replace(
+                "  keenetic-dlna:\n    kind: keenetic.dlna",
+                "  keenetic-router:\n    kind: keenetic.local",
+            )
+            .replace("  media_index: keenetic-dlna", "  device: keenetic-router");
+        let config = RouterbotConfig::from_str(&input).expect("config should be valid");
+        assert!(matches!(
+            config.adapters().get("keenetic-router"),
+            Some(AdapterConfig::KeeneticLocal { ndmc_path })
+                if ndmc_path == &PathBuf::from("/bin/ndmc")
+        ));
+    }
+
+    #[test]
+    fn local_keenetic_requires_absolute_ndmc_path() {
+        let input = VALID_CONFIG
+            .replace(
+                "  keenetic-dlna:\n    kind: keenetic.dlna",
+                "  keenetic-router:\n    kind: keenetic.local\n    ndmc_path: bin/ndmc",
+            )
+            .replace("  media_index: keenetic-dlna", "  device: keenetic-router");
+        let message = validation_message(
+            RouterbotConfig::from_str(&input).expect_err("config should be invalid"),
+        );
+        assert_eq!(message, "adapters.keenetic-router.ndmc_path must be absolute");
+    }
+
+    #[test]
+    fn transmission_credentials_must_be_paired() {
+        let input = VALID_CONFIG.replace("    password_env: TRANSMISSION_PASSWORD\n", "");
+        let message = validation_message(
+            RouterbotConfig::from_str(&input).expect_err("config should be invalid"),
+        );
+        assert_eq!(
+            message,
+            "adapters.transmission-main must configure username_env and password_env together"
+        );
     }
 
     #[test]
