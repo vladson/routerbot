@@ -1,6 +1,10 @@
 [advisories]
 db-urls = ["https://github.com/RustSec/advisory-db"]
-ignore = []
+ignore = [
+    # Transitive build-time dependency of teloxide 0.17 through aquamarine.
+    # No safe upgrade is available for RUSTSEC-2026-0173.
+    "RUSTSEC-2026-0173",
+]
 
 [licenses]
 allow = [
@@ -13,6 +17,14 @@ allow = [
     "Unicode-3.0",
 ]
 confidence-threshold = 0.8
+
+[[licenses.exceptions]]
+allow = ["Apache-2.0 WITH LLVM-exception"]
+crate = "ar_archive_writer"
+
+[[licenses.exceptions]]
+allow = ["MPL-2.0"]
+crate = "colored"
 
 [bans]
 multiple-versions = "warn"
